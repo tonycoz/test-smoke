@@ -197,10 +197,9 @@ sub check_for_json {
     }
 
     $opt{v} and print "Found [$jsnfile]\n";
-    local *JSON;
-    open JSON, '<', $jsnfile or die "Cannot open($jsnfile): $!";
-    my $json = do {local $/; <JSON> };
-    close JSON;
+    open my $jsonfh, '<', $jsnfile or die "Cannot open($jsnfile): $!";
+    my $json = do {local $/; <$jsonfh> };
+    close $jsonfh;
     return $json;
 }
 

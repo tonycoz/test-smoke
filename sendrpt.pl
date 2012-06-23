@@ -19,6 +19,7 @@ use Test::Smoke::Reporter;
 use Test::Smoke::Mailer;
 use Test::Smoke;
 use Test::Smoke::Util qw( do_pod2usage );
+use JSON;
 
 use Getopt::Long;
 my %opt = (
@@ -163,6 +164,39 @@ if ($json && $opt{smokedb_url}) {
     $opt{v} and print "Posting to SmokeDB ($opt{smokedb_url})\n";
     my $response = $ua->post($opt{smokedb_url}, {json => $json});
     $opt{v} and print $response->content;
+    if ($response->is_success) {
+        my $result;
+        my $decoder = JSON->new;
+        if (eval { $result = $decoder->decode($response->content); 1 }) {
+            if ($result->{error}) {
+                if ($result->{error} eq 'Report already posted.') {
+                    # if we got the job id back I'd report it here
+                    # treat this as success
+                    print "Duplicate report.\n";
+                }
+                else {
+                    print "Error: $result->{error}\n";
+                    exit 2;
+                }
+            }
+            elsif ($result->{id}) {
+                print "Reported: $result->{id}\n";
+            }
+            else {
+                # something is broken
+                print "Unexpected response\n";
+                exit 3;
+            }
+        }
+        else {
+            print "Invalid JSON response: $@\n";
+            exit 1;
+        }
+    }
+    else {
+        print "HTTP error: ", $response->status_line, "\n";
+        exit 1;
+    }
 }
 
 # Basically: call mkovz.pl unless -f <builddir>/mktest.rpt
@@ -208,6 +242,33 @@ sub check_for_json {
 =head1 SEE ALSO
 
 L<Test::Smoke::Mailer>, L<Test::Smoke::Reporter>
+
+=head1 EXIT CODES
+
+sendrpt.pl sets the exit code depending on the result of report
+submission:
+
+=over
+
+=item *
+
+0 - submission was successful, or the server returned an error
+indicating it already has this report.
+
+=item *
+
+1 - submission failed with a HTTP error.  Typically a communications
+error.
+
+=item *
+
+2 - the server returned an error.
+
+=item *
+
+3 - the request returned an unexpected response.
+
+=back
 
 =head1 COPYRIGHT
 

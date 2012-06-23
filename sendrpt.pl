@@ -72,6 +72,7 @@ Other options can override the settings from the configuration file.
 =item * B<General options>
 
     -d | --ddir <directory>  Set the directory for the source-tree (cwd)
+    -j | --jsnfile <file>    Set the file to send (mktest.jsn)
     --to <emailaddresses>    Comma separated list (smokers-reports@perl.org)
     --cc <emailaddresses>    Comma separated list
 
@@ -101,6 +102,7 @@ GetOptions(
     \%opt => qw(
         type|t=s
         ddir|d=s
+        jsnfile|j=s
         to=s      cc=s      bcc=s
 
         ccp5p_onfail!

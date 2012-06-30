@@ -283,6 +283,8 @@ sub sendrpt {
         $conf->{v} and print $response->content;
     }
     else {
+        # generate the .jsn file so the archive step can archive it
+        $reporter->smokedb_data;
         $conf->{v} and print "Skipping smokedb_send\n";
     }
 }

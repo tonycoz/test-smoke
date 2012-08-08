@@ -420,6 +420,15 @@ sub _parse {
                             status => $2,
                             extra  => []
                             }
+                    :
+                # TEST output from minitest
+                m/^ \s* (\S+?) \s* \.+ \s* (\w+) \s+at\ test\s+ (\d+) \s* $/x
+             || m/^ \s* (\S+?) \s* \.+ \s* (\w+)--(\S.*\S) \s* $/x 
+                    ? {
+                        test   => $1,
+                        status => $2,
+                        extra  => [ $3 ]
+                    }
                         : {
                             test   => "?",
                             status => "?",

@@ -37,6 +37,7 @@ my %opt = (
     jsnfile    => 'mktest.jsn',
     mail       => 0,
     report     => 1,
+    first      => 0,
     defaultenv => undef,
     config     => undef,
     help       => 0,
@@ -82,6 +83,7 @@ Other options can override the settings from the configuration file.
 
     --nomail                 Don't send the message
     --report                 Create a report anyway
+    --first                  First attempt to send report, treat a duplicate report response as a fail
     --defaultenv             It was a PERLIO-less smoke
     --[no]ccp5p_onfail       Do (not) send failure reports to perl5-porters
 
@@ -104,6 +106,7 @@ GetOptions(
         type|t=s
         ddir|d=s
         jsnfile|j=s
+        first!
         to=s      cc=s      bcc=s
 
         ccp5p_onfail!
@@ -169,7 +172,8 @@ if ($json && $opt{smokedb_url}) {
         my $decoder = JSON->new;
         if (eval { $result = $decoder->decode($response->content); 1 }) {
             if ($result->{error}) {
-                if ($result->{error} eq 'Report already posted.') {
+                if ($result->{error} eq 'Report already posted.'
+		    && !$conf->{first}) {
                     # if we got the job id back I'd report it here
                     # treat this as success
                     print "Duplicate report.\n";

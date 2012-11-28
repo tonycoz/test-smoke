@@ -38,6 +38,7 @@ my %options = (
     fetch        => 1,
     patch        => 1,
     mail         => undef,
+    send         => 1,
     smokedb_url  => undef,
     send_out     => "never",
     send_log     => "on_fail",
@@ -60,6 +61,7 @@ GetOptions( \%options,
     'patch!',
     'ccp5p_onfail!',
     'mail!',
+    'send!',
     'smokedb_url=s',
     'delay_report!',
     'run!',
@@ -103,6 +105,7 @@ It can take these options
   --nofetch                Skip the synctree step
   --nopatch                Skip the patch step
   --nomail                 Skip the mail step
+  --nosend                 Skip the smoke database send
   --noarchive              Skip the archive step (if applicable)
   --[no]ccp5p_onfail       Do (not) send failure reports to perl5-porters
   --[no]delay_report       Do (not) create the report now
@@ -270,7 +273,7 @@ sub sendrpt {
         $conf->{v} and print "Skipping mailrpt\n";
     }
 
-    if ($conf->{smokedb_url}) {
+    if ($options{send} && $conf->{smokedb_url}) {
         require LWP::UserAgent;
         my $ua = LWP::UserAgent->new(
             agent => "Test::Smoke/$Test::Smoke::VERSION",

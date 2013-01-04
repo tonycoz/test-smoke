@@ -36,6 +36,7 @@ my %CONFIG = (
 
     df_makeopt        => "",
     df_testmake       => undef,
+    df_make           => "make",
 
     df_skip_tests     => undef,
 );
@@ -108,6 +109,7 @@ C<new()> takes a mandatory (opened) filehandle and some other options:
     is56x           skip the PerlIO stuff?
     locale          do another testrun with $ENV{LC_ALL}
     force_c_locale  set $ENV{LC_ALL} = 'C' for all smoke runs
+    make            the make to use for normal *nix makes
 
     is_win32        is this MSWin32?
     w32cc           the CCTYPE for MSWin32 (MSVCxx BORLAND GCC)
@@ -1154,7 +1156,7 @@ sub _make {
     $self->{makeopt} and $cmd = "$self->{makeopt} $cmd";
     $cmd =~ m/clean/ and $cmd =~ s/-j[0-9]+\s+//;
 
-    $self->{is_win32} || $self->{is_vms} or return $self->_run( "make $cmd" );
+    $self->{is_win32} || $self->{is_vms} or return $self->_run( "$self->{make} $cmd" );
 
     my $kill_err;
     # don't capture STDERR
